@@ -1,554 +1,364 @@
 <!DOCTYPE html>
 <html lang="uz">
-<head><link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Tracker">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Kundalik Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
 <style>
-  :root {
-    --bg: #0d0d0d;
-    --surface: #161616;
-    --surface2: #1e1e1e;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.15);
-    --text: #f0f0f0;
-    --muted: #888;
-    --purple: #8b7cf8;
-    --purple-dim: rgba(139,124,248,0.15);
-    --teal: #34d399;
-    --teal-dim: rgba(52,211,153,0.15);
-    --blue: #60a5fa;
-    --blue-dim: rgba(96,165,250,0.15);
-    --pink: #f472b6;
-    --pink-dim: rgba(244,114,182,0.15);
-    --amber: #fbbf24;
-    --amber-dim: rgba(251,191,36,0.15);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overscroll-behavior: none; }
 
-  .app { max-width: 430px; margin: 0 auto; padding: 0 0 100px; }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+}
 
-  /* Header */
-  .header { padding: 52px 20px 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .header-left h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.5px; }
-  .header-left .date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
-  .month-nav { display: flex; gap: 6px; }
-  .month-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border2); background: var(--surface); color: var(--text); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-  .month-btn:active { background: var(--surface2); }
+body{
+background:#f5f3ef;
+padding:20px;
+color:#1d1d1f;
+}
 
-  /* Stats bar */
-  .stats-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 20px 20px; }
-  .stat { background: var(--surface); border-radius: 12px; padding: 12px 14px; }
-  .stat .val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; }
-  .stat .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat.highlight .val { color: var(--purple); }
+.container{
+max-width:1200px;
+margin:auto;
+background:white;
+border-radius:28px;
+padding:28px;
+box-shadow:0 10px 40px rgba(0,0,0,0.05);
+}
 
-  /* Mini bar charts */
-  .bars-section { padding: 0 20px 20px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .bar-label { font-size: 11px; color: var(--muted); width: 72px; text-align: right; flex-shrink: 0; font-family: 'DM Mono', monospace; }
-  .bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
-  .bar-fill.purple { background: var(--purple); }
-  .bar-fill.teal { background: var(--teal); }
-  .bar-fill.blue { background: var(--blue); }
-  .bar-pct { font-size: 10px; color: var(--muted); width: 28px; font-family: 'DM Mono', monospace; }
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
 
-  /* Divider */
-  .divider { height: 1px; background: var(--border); margin: 4px 20px 16px; }
+.title{
+font-size:40px;
+font-weight:700;
+}
 
-  /* Section header */
-  .section-hdr { padding: 0 20px 10px; display: flex; align-items: center; gap: 8px; }
-  .section-hdr .dot { width: 6px; height: 6px; border-radius: 50%; }
-  .section-hdr span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+.month{
+font-size:24px;
+color:#666;
+}
 
-  /* Habit rows */
-  .habit-list { padding: 0 20px; }
-  .habit-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
-  .habit-row:last-child { border-bottom: none; }
-  .habit-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-  .habit-name { flex: 1; font-size: 14px; font-weight: 400; color: var(--text); }
-  .habit-name .sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:18px;
+margin-bottom:35px;
+}
 
-  /* Calendar circles row */
-  .circles { display: flex; gap: 3px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-  .circles::-webkit-scrollbar { display: none; }
-  .day-dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border2); background: transparent; cursor: pointer; flex-shrink: 0; transition: all 0.12s; display: flex; align-items: center; justify-content: center; }
-  .day-dot.today-dot { border-style: dashed; }
-  .day-dot.done { border-color: transparent; }
-  .day-dot:active { transform: scale(0.85); }
+.card{
+background:#f7f7f7;
+padding:22px;
+border-radius:20px;
+}
 
-  /* Bottom nav */
-  .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(13,13,13,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 10px 0 24px; }
-  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; }
-  .nav-btn svg { width: 22px; height: 22px; stroke: var(--muted); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.15s; }
-  .nav-btn.active svg { stroke: var(--purple); }
-  .nav-btn span { font-size: 10px; color: var(--muted); }
-  .nav-btn.active span { color: var(--purple); }
+.card h1{
+font-size:42px;
+margin-bottom:8px;
+}
 
-  /* Stats page */
-  .page { display: none; }
-  .page.active { display: block; }
+.card p{
+color:#666;
+font-size:15px;
+}
 
-  /* Monthly grid view */
-  .month-grid { padding: 0 20px; }
-  .grid-header { display: flex; margin-bottom: 8px; }
-  .grid-header .gh-label { width: 100px; font-size: 10px; color: var(--muted); }
-  .grid-header .gh-days { flex: 1; display: flex; gap: 0; }
-  .gh-day { flex: 1; text-align: center; font-size: 9px; color: var(--muted); font-family: 'DM Mono', monospace; min-width: 0; }
+.progress{
+margin-bottom:35px;
+}
 
-  .grid-row { display: flex; align-items: center; margin-bottom: 6px; }
-  .grid-row .gr-label { width: 100px; font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
-  .grid-row .gr-cells { flex: 1; display: flex; gap: 2px; }
-  .grid-cell { flex: 1; height: 14px; border-radius: 3px; background: var(--surface2); min-width: 0; cursor: pointer; transition: all 0.1s; }
-  .grid-cell.done { opacity: 1; }
-  .grid-cell:active { transform: scale(0.8); }
+.progress-item{
+margin-bottom:18px;
+}
 
-  /* Month nav in stats */
-  .stats-header { padding: 52px 20px 16px; display: flex; justify-content: space-between; align-items: center; }
-  .stats-title { font-size: 22px; font-weight: 500; }
+.progress-label{
+display:flex;
+justify-content:space-between;
+margin-bottom:8px;
+font-size:15px;
+}
 
-  /* Streak calendar */
-  .streak-section { padding: 0 20px 20px; }
-  .streak-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-  .week-row { display: flex; gap: 4px; justify-content: space-between; margin-bottom: 4px; }
-  .week-cell { flex: 1; height: 28px; border-radius: 6px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--muted); font-family: 'DM Mono', monospace; }
-  .week-cell.filled { background: var(--purple); color: #fff; }
-  .week-cell.partial { background: var(--purple-dim); color: var(--purple); }
-  .week-cell.future { opacity: 0.3; }
+.bar{
+height:12px;
+background:#ececec;
+border-radius:999px;
+overflow:hidden;
+}
 
-  .big-stat { background: var(--surface); border-radius: 16px; padding: 20px; margin: 0 20px 12px; }
-  .big-stat .bs-val { font-family: 'DM Mono', monospace; font-size: 40px; font-weight: 500; color: var(--purple); }
-  .big-stat .bs-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.fill{
+height:100%;
+width:0%;
+background:#7c5cff;
+border-radius:999px;
+transition:0.3s;
+}
 
-  .completion-list { padding: 0 20px; }
-  .cl-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .cl-row:last-child { border-bottom: none; }
-  .cl-bar-wrap { flex: 1; }
-  .cl-name { font-size: 12px; color: var(--text); margin-bottom: 4px; }
-  .cl-bar { height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
-  .cl-fill { height: 100%; border-radius: 99px; }
-  .cl-pct { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); width: 32px; text-align: right; }
+.grid{
+overflow-x:auto;
+}
 
-  /* Scrollbar hide */
-  .habit-list-wrap { overflow-y: auto; }
+.days{
+display:grid;
+grid-template-columns:200px repeat(31,40px);
+gap:10px;
+align-items:center;
+margin-bottom:14px;
+min-width:1600px;
+}
+
+.day-number{
+text-align:center;
+font-weight:600;
+color:#777;
+}
+
+.habit{
+font-size:18px;
+font-weight:500;
+}
+
+.circle{
+width:26px;
+height:26px;
+border-radius:50%;
+border:2px solid #d1d1d1;
+cursor:pointer;
+transition:0.2s;
+margin:auto;
+}
+
+.circle.active{
+background:#7c5cff;
+border-color:#7c5cff;
+transform:scale(1.05);
+}
+
+.section-title{
+font-size:26px;
+font-weight:700;
+margin-bottom:20px;
+}
+
+@media(max-width:768px){
+
+body{
+padding:12px;
+}
+
+.container{
+padding:18px;
+border-radius:24px;
+}
+
+.title{
+font-size:32px;
+}
+
+.month{
+font-size:18px;
+}
+
+.stats{
+grid-template-columns:1fr 1fr;
+}
+
+.card h1{
+font-size:34px;
+}
+
+.days{
+grid-template-columns:140px repeat(31,34px);
+gap:8px;
+}
+
+.habit{
+font-size:15px;
+}
+
+.circle{
+width:22px;
+height:22px;
+}
+
+}
+
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- HOME PAGE -->
-  <div id="page-home" class="page active">
-    <div class="header">
-      <div class="header-left">
-        <h1>Kundalik</h1>
-        <div class="date" id="todayDate"></div>
-      </div>
-      <div class="month-nav">
-        <button class="month-btn" onclick="changeMonth(-1)">&#8249;</button>
-        <button class="month-btn" onclick="changeMonth(1)">&#8250;</button>
-      </div>
-    </div>
+<div class="container">
 
-    <div class="stats-bar">
-      <div class="stat highlight">
-        <div class="val" id="s-today">0/11</div>
-        <div class="lbl">Bugun</div>
-      </div>
-      <div class="stat">
-        <div class="val" id="s-streak">0</div>
-        <div class="lbl">Izchillik</div>
-      </div>
-      <div class="stat">
-        <div class="val" id="s-pct">0%</div>
-        <div class="lbl">Bu oy</div>
-      </div>
-    </div>
+<div class="top">
+<div class="title">Kundalik Tracker</div>
+<div class="month">2026 may</div>
+</div>
 
-    <div class="bars-section">
-      <div class="bar-row">
-        <div class="bar-label">Uyqu</div>
-        <div class="bar-track"><div class="bar-fill purple" id="b-uyqu" style="width:0%"></div></div>
-        <div class="bar-pct" id="bp-uyqu">0%</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">Ingliz tili</div>
-        <div class="bar-track"><div class="bar-fill teal" id="b-eng" style="width:0%"></div></div>
-        <div class="bar-pct" id="bp-eng">0%</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">Kurs</div>
-        <div class="bar-track"><div class="bar-fill blue" id="b-kurs" style="width:0%"></div></div>
-        <div class="bar-pct" id="bp-kurs">0%</div>
-      </div>
-    </div>
+<div class="stats">
 
-    <div class="divider"></div>
+<div class="card">
+<h1 id="doneCount">0</h1>
+<p>Bajarilgan</p>
+</div>
 
-    <div id="habitSections"></div>
-  </div>
+<div class="card">
+<h1 id="streak">0</h1>
+<p>Izchillik</p>
+</div>
 
-  <!-- STATS PAGE -->
-  <div id="page-stats" class="page">
-    <div class="stats-header">
-      <div class="stats-title">Statistika</div>
-    </div>
+<div class="card">
+<h1 id="percent">0%</h1>
+<p>Foiz</p>
+</div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 20px 16px;">
-      <div class="big-stat" style="margin:0;">
-        <div class="bs-val" id="ss-streak">0</div>
-        <div class="bs-lbl">kun ketma-ket</div>
-      </div>
-      <div class="big-stat" style="margin:0;">
-        <div class="bs-val" id="ss-total">0</div>
-        <div class="bs-lbl">jami bajarildi</div>
-      </div>
-    </div>
-
-    <div class="streak-section">
-      <div class="streak-title">Bu oy — har kun</div>
-      <div id="weekGrid"></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div style="padding:0 20px 10px;"><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Odatlar bo'yicha foiz</span></div>
-    <div class="completion-list" id="completionList"></div>
-  </div>
+<div class="card">
+<h1 id="today">0/11</h1>
+<p>Bugun</p>
+</div>
 
 </div>
 
-<!-- Bottom Nav -->
-<div class="bottom-nav">
-  <div class="nav-btn active" id="nav-home" onclick="switchPage('home')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span>Bugun</span>
-  </div>
-  <div class="nav-btn" id="nav-stats" onclick="switchPage('stats')">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <span>Statistika</span>
-  </div>
+<div class="progress">
+
+<div class="progress-item">
+<div class="progress-label">
+<span>Uyqu</span>
+<span id="sleepPercent">0%</span>
+</div>
+<div class="bar">
+<div class="fill" id="sleepBar"></div>
+</div>
+</div>
+
+<div class="progress-item">
+<div class="progress-label">
+<span>Ingliz tili</span>
+<span id="engPercent">0%</span>
+</div>
+<div class="bar">
+<div class="fill" id="engBar"></div>
+</div>
+</div>
+
+<div class="progress-item">
+<div class="progress-label">
+<span>Kurs</span>
+<span id="coursePercent">0%</span>
+</div>
+<div class="bar">
+<div class="fill" id="courseBar"></div>
+</div>
+</div>
+
+</div>
+
+<div class="section-title">May oyi</div>
+
+<div class="grid" id="grid"></div>
+
 </div>
 
 <script>
-const GROUPS = [
-  {
-    title: "Uyqu", color: "var(--purple)", bg: "var(--purple-dim)", dot: "#8b7cf8", gkey: "uyqu",
-    habits: [
-      { key: "uyqu_vaqt", name: "23:00 da uxlash", icon: "🌙" },
-      { key: "uyqu_tur",  name: "07:30 da turish", icon: "☀️" },
-    ]
-  },
-  {
-    title: "Ingliz tili", color: "var(--teal)", bg: "var(--teal-dim)", dot: "#34d399", gkey: "eng",
-    habits: [
-      { key: "eng1", name: "Ingliz tili (ertalab)", icon: "📖", sub: "45 daqiqa" },
-      { key: "eng2", name: "Ingliz tili (kechqurun)", icon: "📝", sub: "So'z takrorlash" },
-    ]
-  },
-  {
-    title: "Kurs — Video montaj", color: "var(--blue)", bg: "var(--blue-dim)", dot: "#60a5fa", gkey: "kurs",
-    habits: [
-      { key: "kurs_kor",  name: "Dars ko'rish", icon: "▶️", sub: "1 ta dars" },
-      { key: "kurs_mont", name: "Mustaqil montaj", icon: "✂️", sub: "Amaliy mashq" },
-      { key: "kurs_takr", name: "Kurs takrorlash", icon: "🔁", sub: "Qiyin joylar" },
-    ]
-  },
-  {
-    title: "Ish / Loyha", color: "var(--pink)", bg: "var(--pink-dim)", dot: "#f472b6", gkey: null,
-    habits: [
-      { key: "ish",    name: "Loyha ishlash", icon: "💼", sub: "Montaj / mijoz" },
-      { key: "syomka", name: "Syomka tayyorligi", icon: "🎬", sub: "Chorshanba" },
-    ]
-  },
-  {
-    title: "Salomatlik & Shaxsiy", color: "var(--amber)", bg: "var(--amber-dim)", dot: "#fbbf24", gkey: null,
-    habits: [
-      { key: "sport", name: "Sport / Harakat", icon: "🏋️", sub: "Jismoniy faollik" },
-      { key: "dam",   name: "Sifatli dam olish", icon: "🧘", sub: "Telefonsiz" },
-    ]
-  },
+
+const habits = [
+"23:00 uxlash",
+"07:30 turish",
+"Ingliz tili",
+"So'z takrorlash",
+"Kurs darsi",
+"Montaj",
+"Kurs takrorlash",
+"Loyiha/Ish",
+"Syomka",
+"Sport",
+"Telefonsiz dam"
 ];
 
-const ALL_HABITS = GROUPS.flatMap(g => g.habits);
-const DAYS_IN_MONTH = (y, m) => new Date(y, m + 1, 0).getDate();
+const days = 31;
 
-let viewYear, viewMonth;
-const now = new Date();
-viewYear = now.getFullYear();
-viewMonth = now.getMonth();
+const grid = document.getElementById("grid");
 
-function storageKey(year, month) { return `tracker_${year}_${month}`; }
+function createGrid(){
 
-function loadState(year, month) {
-  try {
-    const raw = localStorage.getItem(storageKey(year, month));
-    return raw ? JSON.parse(raw) : {};
-  } catch(e) { return {}; }
+let header = document.createElement("div");
+header.className = "days";
+
+header.innerHTML = `<div></div>`;
+
+for(let d=1; d<=days; d++){
+header.innerHTML += `<div class="day-number">${d}</div>`;
 }
 
-function saveState(year, month, state) {
-  try { localStorage.setItem(storageKey(year, month), JSON.stringify(state)); } catch(e) {}
+grid.appendChild(header);
+
+habits.forEach((habit,index)=>{
+
+let row = document.createElement("div");
+row.className = "days";
+
+row.innerHTML = `<div class="habit">${habit}</div>`;
+
+for(let d=1; d<=days; d++){
+
+row.innerHTML += `
+<div 
+class="circle"
+onclick="toggle(this)">
+</div>
+`;
+
 }
 
-let state = loadState(viewYear, viewMonth);
+grid.appendChild(row);
 
-function getVal(key, day) {
-  return !!(state[key] && state[key][day]);
+});
+
 }
 
-function toggle(key, day) {
-  if (!state[key]) state[key] = {};
-  state[key][day] = !state[key][day];
-  saveState(viewYear, viewMonth, state);
-  updateAll();
+function toggle(el){
+
+el.classList.toggle("active");
+
+updateStats();
+
 }
 
-function daysInView() { return DAYS_IN_MONTH(viewYear, viewMonth); }
-function todayDay() {
-  const t = new Date();
-  if (t.getFullYear() === viewYear && t.getMonth() === viewMonth) return t.getDate();
-  return -1;
+function updateStats(){
+
+const active = document.querySelectorAll(".circle.active").length;
+
+const total = document.querySelectorAll(".circle").length;
+
+document.getElementById("doneCount").innerText = active;
+
+let percent = Math.round((active/total)*100);
+
+document.getElementById("percent").innerText = percent + "%";
+
+document.getElementById("today").innerText = active + "/11";
+
+document.getElementById("sleepBar").style.width = percent + "%";
+document.getElementById("engBar").style.width = percent + "%";
+document.getElementById("courseBar").style.width = percent + "%";
+
+document.getElementById("sleepPercent").innerText = percent + "%";
+document.getElementById("engPercent").innerText = percent + "%";
+document.getElementById("coursePercent").innerText = percent + "%";
+
 }
 
-function monthName(m) {
-  const names = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
-  return names[m];
-}
+createGrid();
 
-function changeMonth(dir) {
-  viewMonth += dir;
-  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-  if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
-  state = loadState(viewYear, viewMonth);
-  renderHabits();
-  updateAll();
-}
-
-function switchPage(p) {
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('page-' + p).classList.add('active');
-  document.getElementById('nav-' + p).classList.add('active');
-  if (p === 'stats') renderStats();
-}
-
-function renderHabits() {
-  const days = daysInView();
-  const td = todayDay();
-  const t = new Date();
-  document.getElementById('todayDate').textContent =
-    t.getDate() + ' ' + monthName(t.getMonth()) + ' ' + t.getFullYear() + ' — ' + monthName(viewMonth) + ' ' + viewYear;
-
-  const container = document.getElementById('habitSections');
-  container.innerHTML = '';
-
-  GROUPS.forEach(group => {
-    const sec = document.createElement('div');
-
-    const hdr = document.createElement('div');
-    hdr.className = 'section-hdr';
-    hdr.innerHTML = `<div class="dot" style="background:${group.dot}"></div><span>${group.title}</span>`;
-    sec.appendChild(hdr);
-
-    const list = document.createElement('div');
-    list.className = 'habit-list';
-
-    group.habits.forEach(h => {
-      const row = document.createElement('div');
-      row.className = 'habit-row';
-
-      const icon = document.createElement('div');
-      icon.className = 'habit-icon';
-      icon.style.background = group.bg;
-      icon.textContent = h.icon;
-
-      const info = document.createElement('div');
-      info.className = 'habit-name';
-      info.innerHTML = h.name + (h.sub ? `<div class="sub">${h.sub}</div>` : '');
-
-      const circles = document.createElement('div');
-      circles.className = 'circles';
-
-      for (let d = 1; d <= days; d++) {
-        const dot = document.createElement('div');
-        dot.className = 'day-dot' + (getVal(h.key, d) ? ' done' : '') + (d === td ? ' today-dot' : '');
-        if (getVal(h.key, d)) dot.style.background = group.dot;
-        dot.dataset.key = h.key;
-        dot.dataset.day = d;
-        dot.title = d + ' ' + monthName(viewMonth);
-        dot.addEventListener('click', function() {
-          toggle(this.dataset.key, parseInt(this.dataset.day));
-        });
-        circles.appendChild(dot);
-      }
-
-      row.appendChild(icon);
-      row.appendChild(info);
-      row.appendChild(circles);
-      list.appendChild(row);
-    });
-
-    sec.appendChild(list);
-    const div = document.createElement('div');
-    div.className = 'divider';
-    sec.appendChild(div);
-    container.appendChild(sec);
-  });
-}
-
-function updateAll() {
-  const days = daysInView();
-  const td = todayDay();
-  const allKeys = ALL_HABITS.map(h => h.key);
-
-  let totalDone = 0, totalPossible = 0;
-  let todayDone = 0;
-
-  allKeys.forEach(k => {
-    for (let d = 1; d <= days; d++) {
-      totalPossible++;
-      if (getVal(k, d)) totalDone++;
-    }
-    if (td > 0 && getVal(k, td)) todayDone++;
-  });
-
-  document.getElementById('s-today').textContent = todayDone + '/' + allKeys.length;
-  document.getElementById('s-pct').textContent = totalPossible ? Math.round(totalDone / totalPossible * 100) + '%' : '0%';
-
-  // Streak
-  let streak = 0;
-  const halfHabits = Math.ceil(allKeys.length * 0.5);
-  for (let d = (td > 0 ? td - 1 : days); d >= 1; d--) {
-    const dayDone = allKeys.filter(k => getVal(k, d)).length;
-    if (dayDone >= halfHabits) streak++;
-    else break;
-  }
-  document.getElementById('s-streak').textContent = streak;
-
-  // Bar charts per group
-  function groupPct(gkey) {
-    if (!gkey) return 0;
-    const group = GROUPS.find(g => g.gkey === gkey);
-    if (!group) return 0;
-    let done = 0, total = 0;
-    group.habits.forEach(h => {
-      for (let d = 1; d <= days; d++) {
-        total++;
-        if (getVal(h.key, d)) done++;
-      }
-    });
-    return total ? Math.round(done / total * 100) : 0;
-  }
-
-  const uyquP = groupPct('uyqu');
-  const engP  = groupPct('eng');
-  const kursP = groupPct('kurs');
-  document.getElementById('b-uyqu').style.width = uyquP + '%';
-  document.getElementById('b-eng').style.width  = engP + '%';
-  document.getElementById('b-kurs').style.width = kursP + '%';
-  document.getElementById('bp-uyqu').textContent = uyquP + '%';
-  document.getElementById('bp-eng').textContent  = engP + '%';
-  document.getElementById('bp-kurs').textContent = kursP + '%';
-
-  // Update dots without full re-render
-  document.querySelectorAll('.day-dot').forEach(dot => {
-    const k = dot.dataset.key;
-    const d = parseInt(dot.dataset.day);
-    const done = getVal(k, d);
-    dot.classList.toggle('done', done);
-    const group = GROUPS.find(g => g.habits.some(h => h.key === k));
-    dot.style.background = done ? group.dot : '';
-  });
-}
-
-function renderStats() {
-  const days = daysInView();
-  const td = todayDay();
-  const allKeys = ALL_HABITS.map(h => h.key);
-
-  document.getElementById('ss-streak').textContent = document.getElementById('s-streak').textContent;
-
-  let totalDone = 0;
-  allKeys.forEach(k => {
-    for (let d = 1; d <= days; d++) {
-      if (getVal(k, d)) totalDone++;
-    }
-  });
-  document.getElementById('ss-total').textContent = totalDone;
-
-  // Week grid
-  const weekGrid = document.getElementById('weekGrid');
-  weekGrid.innerHTML = '';
-  const halfH = Math.ceil(allKeys.length * 0.5);
-  const weeks = [];
-  let week = [];
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-  const startOffset = (firstDay + 6) % 7;
-  for (let i = 0; i < startOffset; i++) week.push(null);
-  for (let d = 1; d <= days; d++) {
-    week.push(d);
-    if (week.length === 7) { weeks.push(week); week = []; }
-  }
-  if (week.length) {
-    while (week.length < 7) week.push(null);
-    weeks.push(week);
-  }
-
-  weeks.forEach(w => {
-    const row = document.createElement('div');
-    row.className = 'week-row';
-    w.forEach(d => {
-      const cell = document.createElement('div');
-      cell.className = 'week-cell';
-      if (d === null) {
-        cell.style.background = 'transparent';
-      } else if (d > (td > 0 ? td : days)) {
-        cell.className += ' future';
-        cell.textContent = d;
-      } else {
-        const done = allKeys.filter(k => getVal(k, d)).length;
-        const pct = done / allKeys.length;
-        if (pct >= 0.7) cell.className += ' filled';
-        else if (pct >= 0.3) cell.className += ' partial';
-        cell.textContent = d;
-      }
-      row.appendChild(cell);
-    });
-    weekGrid.appendChild(row);
-  });
-
-  // Completion list
-  const colors = ['#8b7cf8','#34d399','#60a5fa','#f472b6','#fbbf24','#8b7cf8','#34d399','#60a5fa','#f472b6','#fbbf24','#8b7cf8'];
-  const cl = document.getElementById('completionList');
-  cl.innerHTML = '';
-  ALL_HABITS.forEach((h, i) => {
-    let done = 0;
-    for (let d = 1; d <= days; d++) if (getVal(h.key, d)) done++;
-    const pct = Math.round(done / days * 100);
-    const row = document.createElement('div');
-    row.className = 'cl-row';
-    row.innerHTML = `
-      <div class="cl-bar-wrap">
-        <div class="cl-name">${h.name}</div>
-        <div class="cl-bar"><div class="cl-fill" style="width:${pct}%;background:${colors[i]};"></div></div>
-      </div>
-      <div class="cl-pct">${pct}%</div>
-    `;
-    cl.appendChild(row);
-  });
-}
-
-renderHabits();
-updateAll();
 </script>
+
 </body>
 </html>
