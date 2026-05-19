@@ -10,7 +10,48 @@
 <link rel="apple-touch-icon" href="icon.png">
 
 <style>
+@media (max-width: 768px) {
 
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .tracker-grid {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 700px;
+    }
+
+    h1 {
+        font-size: 38px;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .stat-box {
+        width: 100%;
+    }
+
+    .progress-section {
+        margin-top: 20px;
+    }
+
+    .progress-bar {
+        height: 14px;
+    }
+}
 *{
 margin:0;
 padding:0;
